@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\API\NewUserController;
 use App\Http\Controllers\API\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -21,7 +22,7 @@ use App\Http\Controllers\API\TicketController;
 Route::get('destinasi',[DestinasiController::class, 'index']);
 Route::post('destinasi/store', [DestinasiController::class, 'store']);
 Route::get('destinasi/{id}', [DestinasiController::class, 'show']);
-Route::get('destinasi/update/{id}', [DestinasiController::class, 'update']);
+Route::put('destinasi/update/{id}', [DestinasiController::class, 'update']);
 Route::delete('destinasi/destroy/{id}', [DestinasiController::class, 'destroy']);
 //search Destinasi
 // Route::get('destinasi/search/{name_destinasi}', [DestinasiController::class, 'search']);
@@ -44,3 +45,9 @@ Route::get('review', function () {
 });
 Route::post('review', [ReviewController::class, 'store']);
 Route::get('review/{id}', [ReviewController::class, 'show']);
+
+
+//USER
+Route::get('/newuser', [NewUserController::class, 'index']);
+Route::get('/newuser/{users}', [NewUserController::class, 'show']);
+Route::post('/newuser', [NewUserController::class, 'store']);

@@ -61,10 +61,9 @@ class DestinasiController extends Controller
             'address' => $request->address,
             'city' => $request->city,
             'category' => $request->category,
+            'destination_picture' => $request->destination_picture,
             'contact' => $request->contact,
             'hobby' => $request->hobby,
-            'rec_time' => $request->rec_time,
-            'url_ticket' => $request->url_ticket,
             'minutes_spend' => $request->minutes_spend,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
@@ -73,7 +72,10 @@ class DestinasiController extends Controller
             'rating' => $request->rating,
             'open-hour' => $request->open_hour,
             'closed-hour' => $request->closed_hour,
-            'created_at' => $dt
+            'created_at' => $dt,
+            'fasility' => $request->fasility,
+            'security' => $request->security,
+
 
         ];
         
@@ -151,10 +153,9 @@ class DestinasiController extends Controller
             'address' => $request->address,
             'city' => $request->city,
             'category' => $request->category,
+            'destination_picture' => $request->destination_picture,
             'contact' => $request->contact,
             'hobby' => $request->hobby,
-            'rec_time' => $request->rec_time,
-            'url_ticket' => $request->url_ticket,
             'minutes_spend' => $request->minutes_spend,
             'latitude' => $request->latitude,
             'longitude' => $request->longitude,
@@ -163,7 +164,9 @@ class DestinasiController extends Controller
             'rating' => $request->rating,
             'open-hour' => $request->open_hour,
             'closed-hour' => $request->closed_hour,
-            'updated_at' => $dt
+            'created_at' => $dt,
+            'fasility' => $request->fasility,
+            'security' => $request->security,
         ];
 
         $id = $getDestinasi->id;
