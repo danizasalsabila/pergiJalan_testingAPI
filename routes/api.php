@@ -1,11 +1,11 @@
 <?php
 
-use App\Http\Controllers\API\NewUserController;
 use App\Http\Controllers\API\ReviewController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DestinasiController;
 use App\Http\Controllers\API\TicketController;
+use App\Http\Controllers\API\AuthControllerUser;
 
 /*
 |--------------------------------------------------------------------------
@@ -19,7 +19,7 @@ use App\Http\Controllers\API\TicketController;
 */
 
 //DESTINASI
-Route::get('destinasi',[DestinasiController::class, 'index']);
+Route::get('destinasi', [DestinasiController::class, 'index']);
 Route::post('destinasi/store', [DestinasiController::class, 'store']);
 Route::get('destinasi/{id}', [DestinasiController::class, 'show']);
 Route::put('destinasi/update/{id}', [DestinasiController::class, 'update']);
@@ -48,6 +48,30 @@ Route::get('review/{id}', [ReviewController::class, 'show']);
 
 
 //USER
-Route::get('/newuser', [NewUserController::class, 'index']);
-Route::get('/newuser/{users}', [NewUserController::class, 'show']);
-Route::post('/newuser', [NewUserController::class, 'store']);
+// Route::post('register', 'App\Http\Controllers\API\AuthControllerUser@register');
+// Route::post('login', 'App\Http\Controllers\API\AuthControllerUser@login');
+// Route::post('logout', 'App\Http\Controllers\API\AuthControllerUser@logout');
+
+// Route::post('register', 'App\Http\Controllers\API\AuthControllerUser@register');
+// Route::post('login', 'App\Http\Controllers\API\AuthControllerUser@login');
+// Route::middleware('auth:api')->post('logout', 'App\Http\Controllers\API\AuthControllerUser@logout');
+
+// Route::middleware('auth:api')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+// Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
+//     return $request->user();
+// });
+Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/user', function (Request $request) {
+        return $request->user();
+    });
+    Route::post('/logout', [AuthControllerUser::class, 'logout']);
+});
+Route::post('register', [AuthControllerUser::class, 'register']);
+Route::post('login', [AuthControllerUser::class, 'login']);
+// Route::post('logout', [AuthControllerUser::class, 'logout']);
+Route::get('user', [AuthControllerUser::class, 'index']);
+Route::get('/user/{email}', 'UserController@getIdByEmail');
+
+

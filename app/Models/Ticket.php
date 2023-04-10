@@ -17,7 +17,7 @@ class Ticket extends Model
     {
         return $this->belongsTo(Destinasi::class, 'id_destinasi');
     }
-     protected $fillable = ['id_destinasi', 'price', 'stock', 'visit_date', 'created_at'];
+     protected $fillable = ['id_destinasi', 'price', 'stock', 'ticket_sold', 'visit_date', 'created_at'];
 
 
 }
