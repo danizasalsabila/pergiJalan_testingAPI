@@ -70,8 +70,6 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::post('register', [AuthControllerUser::class, 'register']);
 Route::post('login', [AuthControllerUser::class, 'login']);
-// Route::post('logout', [AuthControllerUser::class, 'logout']);
 Route::get('user', [AuthControllerUser::class, 'index']);
-Route::get('/user/{email}', 'UserController@getIdByEmail');
-
+Route::get('/email/user', 'App\Http\Controllers\API\AuthControllerUser@email');
 

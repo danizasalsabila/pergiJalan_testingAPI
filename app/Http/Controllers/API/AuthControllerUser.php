@@ -17,7 +17,7 @@ class AuthControllerUser extends Controller
         $validator = Validator::make($request->all(), [
             'name' => 'required',
             'email' => 'email|required|unique:user',
-            'password' => 'required',
+            'password' => 'required|min:6',
             'confirm_password' => 'required|same:password',
             'phone_number' => 'required|string',
             'id_card_number' => 'required|string',
@@ -27,11 +27,30 @@ class AuthControllerUser extends Controller
         if ($validator->fails()) {
             $errors = $validator->errors();
             if ($errors->has('email')) {
-                return response()->json(['error' => $errors->first('email')], 409);
+                return response()->json([
+                    'status' => false,
+                    'error' => $errors->first('email'),
+                    'message' => 'Email sudah terdaftar'
+                ], 409);
             } else if ($errors->has('password')) {
-                return response()->json(['error' => $errors->first('password')], 422);
+                return response()->json([
+                    'status' => false,
+                    'error' => $errors->first('password'),
+                    'message' => 'Masukkan password minimal 6 karakter'
+
+                ], 422);
+            } else if ($errors->has('confirm_password')) {
+                return response()->json([
+                    'status' => false,
+                    'error' => $errors->first('confirm_password'),
+                    'message' => 'Konfirmasi password salah'
+
+                ], 422);
             } else {
-                return response()->json(['errors' => $errors], 422);
+                return response()->json([
+                    'status' => false,
+                    'errors' => $errors
+                ], 400);
             }
         }
 
@@ -44,7 +63,7 @@ class AuthControllerUser extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Sukses register',
+            'message' => 'Register sukses',
             'data' => $success
         ]);
 
@@ -63,13 +82,12 @@ class AuthControllerUser extends Controller
                 'success' => true,
                 'message' => 'Login sukses',
                 'data' => $success
-            ]);
+            ], 200);
         } else {
             return response()->json([
                 'success' => false,
-                'message' => 'Cek email dan password lagi',
-                'data' => null
-            ]);
+                'message' => 'Cek email dan password anda kembali',
+            ], 422);
         }
     }
 
@@ -80,7 +98,7 @@ class AuthControllerUser extends Controller
 
         return response()->json([
             'success' => true,
-            'message' => 'Logout successful!!'
+            'message' => 'Logout successful'
         ]);
     }
     /**
@@ -88,21 +106,53 @@ class AuthControllerUser extends Controller
      */
     public function index()
     {
-        $user = DB::table('user')->orderBy('id','desc')->get();
+        $user = DB::table('user')->orderBy('id', 'asc')->get();
 
-        if($user != null) {
-            return response ([
-                'status' => 'Data user berhasil ditampilkan',
+        if ($user != null) {
+            return response([
+                'success' => true,
                 'code' => 200,
+                'message' => 'Data user berhasil ditampilkan',
                 'data' => $user
             ], 200);
         } else {
-            return response ([
-                'status' => 'failed',
+            return response([
+                'success' => false,
                 'code' => 404,
                 'message' => 'Data user tidak ditemukan'
             ], 404);
         }
+    }
+
+    /**
+     * Display the specified resource.
+     * @return \Illuminate\Http\Response
+     */
+    public function email(Request $request)
+    {
+        $userEmail = $request->q;
+
+        if (empty($userEmail)) {
+            return response([
+                'success' => false,
+                'message' => 'Email harus diberikan'
+            ], 400);
+        }
+
+
+        $user = User::where('email', 'LIKE', "%" . $userEmail . "%")->get();
+
+        if ($user->isEmpty()) {
+            return response([
+                'success' => false,
+                'message' => 'Tidak ada user yang ditemukan berdasarkan email yang diberikan'
+            ], 404);
+        }
+        return response([
+            'success' => true,
+            'message' => 'User berhasil ditemukan',
+            'data' => $user
+        ], 200);
     }
 
     /**
