@@ -72,4 +72,5 @@ Route::post('register', [AuthControllerUser::class, 'register']);
 Route::post('login', [AuthControllerUser::class, 'login']);
 Route::get('user', [AuthControllerUser::class, 'index']);
 Route::get('/email/user', 'App\Http\Controllers\API\AuthControllerUser@email');
+Route::get('user/{id}', [AuthControllerUser::class, 'show']);
 

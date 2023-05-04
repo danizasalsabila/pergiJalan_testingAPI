@@ -62,7 +62,7 @@ class AuthControllerUser extends Controller
         $success['name'] = $user->name;
 
         return response()->json([
-            'success' => true,
+            'status' => true,
             'message' => 'Register sukses',
             'data' => $success
         ]);
@@ -165,10 +165,23 @@ class AuthControllerUser extends Controller
 
     /**
      * Display the specified resource.
+     * @return \Illuminate\Http\Response
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $user = User::where('id', $id)->first();
+        if($user != null) {
+            return response ([
+                'status' => true,
+                'message' => 'Data diri user berhasil ditampilkan',
+                'data' => $user
+            ], 200);
+        } else {
+            return response ([
+                'status' => false,
+                'message' => 'user tidak ditemukan'
+            ], 404);
+        }
     }
 
     /**

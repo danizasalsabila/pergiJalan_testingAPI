@@ -78,14 +78,17 @@ class DestinasiController extends Controller
 
 
         ];
+
+        $createDestinasi = DB::table('destinasi')->insertGetId($requestDestinasi);
         
 
-        $createDestinasi = DB::table('destinasi')->insert($requestDestinasi);
+        // $createDestinasi = DB::table('destinasi')->insert($requestDestinasi);
 
         if($createDestinasi != null){
             return response([
                 'status' => 'success',
                 'message' => 'Destinasi Berhasil Ditambahkan',
+                'id' => $createDestinasi,
                 'data' => $requestDestinasi
             ], 200);
         } else {
