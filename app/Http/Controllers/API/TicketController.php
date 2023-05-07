@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Ticket;
 use DateTime;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+
 
 class TicketController extends Controller
 {
@@ -21,14 +23,14 @@ class TicketController extends Controller
         //     'ticket' => $ticket
         // ]);
 
-        if($ticket != null){
+        if ($ticket != null) {
             return response([
                 'status' => 'success',
                 'message' => 'Tiket Berhasil ditampilkan',
                 'data' => $ticket
             ], 200);
         } else {
-            return response ([
+            return response([
                 'status' => 'failed',
                 'message' => 'Tiket gagal ditampilkan'
             ], 404);
@@ -53,32 +55,32 @@ class TicketController extends Controller
         $dt = new DateTime();
         $tahun = $dt->format('y');
         $bulan = $dt->format('m');
-        
+
         $request->validate([
             'id_destinasi' => 'required|exists:destinasi,id',
-            'price' =>'nullable|integer|min:1',
-            'stock' =>'nullable|integer|min:0',
-            'ticket_sold' =>'nullable|integer|min:0',
-            'visit_date' =>'nullable|string',
+            'price' => 'nullable|integer|min:1',
+            'stock' => 'nullable|integer|min:0',
+            'ticket_sold' => 'nullable|integer|min:0',
+            'visit_date' => 'nullable|string',
         ]);
-    
+
         $ticket = new Ticket;
         $ticket->id_destinasi = $request->input('id_destinasi');
         $ticket->price = $request->input('price');
         $ticket->stock = $request->input('stock');
-        $ticket->stock = $request->input('ticket_sold');
+        $ticket->ticket_sold = $request->input('ticket_sold');
         $ticket->visit_date = $request->input('visit_date');
         $ticket->created_at = $dt;
         $ticket->save();
 
-        if($ticket != null){
+        if ($ticket != null) {
             return response([
                 'status' => 'success',
                 'message' => 'Ticket Berhasil Ditambahkan',
                 'data' => $ticket
             ], 200);
         } else {
-            return response ([
+            return response([
                 'status' => 'failed',
                 'message' => 'Ticket gagal Ditambahkan'
             ], 404);
@@ -94,13 +96,13 @@ class TicketController extends Controller
         //
         // $ticket = Ticket::where('id_destinasi', $id)->get();
         $ticket = Ticket::where('id_destinasi', $id)->first();
-        if($ticket != null) {
-            return response ([
+        if ($ticket != null) {
+            return response([
                 'status' => 'Ticket berhasil ditampilkan',
                 'data' => $ticket
             ], 200);
         } else {
-            return response ([
+            return response([
                 'status' => 'failed',
                 'message' => 'Ticket tidak ditemukan'
             ], 404);
@@ -116,10 +118,46 @@ class TicketController extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $idDestinasi
+     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $idDestinasi)
     {
-        //
+        $getTicket = Ticket::where('id_destinasi', $idDestinasi)->first();
+        if (!$getTicket) {
+            return response([
+                'status' => 'failed',
+                'message' => 'ID destinasi tidak ditemukan'
+            ], 404);
+        }
+
+        $dt = new DateTime();
+        $tahun = $dt->format('y');
+        $bulan = $dt->format('m');
+
+        $requestTicket = [
+            'price' => $request->price,
+            'stock' => $request->stock,
+            'updated_at'=> $dt
+        ];
+
+        // $idDestinasi = $getTicket->idDestinasi;
+        $updateTicket = DB::table('ticket')->where('id_destinasi', $idDestinasi)->update($requestTicket);
+
+
+        if ($updateTicket != null) {
+            return response([
+                'status' => 'success',
+                'message' => 'Ticket Berhasil Diedit',
+                'data' => $requestTicket
+            ], 200);
+        } else {
+            return response([
+                'status' => 'failed',
+                'message' => 'Ticket gagal Diedit',
+            ], 404);
+        }
     }
 
     /**
@@ -130,13 +168,13 @@ class TicketController extends Controller
     {
         $getTicket = Ticket::where('id_destinasi', $id)->first();
         $ticket = Ticket::where('id_destinasi', $id)->delete();
-        
-        if($ticket){
+
+        if ($ticket) {
             return response([
                 'status' => 'success',
                 'message' => 'Data berhasil dihapus'
             ], 200);
-        }else{
+        } else {
             return response([
                 'status' => 'failed',
                 'message' => 'Data gagal dihapus'

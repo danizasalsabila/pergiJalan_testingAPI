@@ -38,6 +38,7 @@ Route::get('ticket', function () {
 Route::post('ticket', [TicketController::class, 'store']);
 Route::get('ticket/{id}', [TicketController::class, 'show']);
 Route::delete('ticket/destroy/{id}', [TicketController::class, 'destroy']);
+Route::put('ticket/update/{id}', [TicketController::class, 'update']);
 
 //REVIEW
 Route::get('review', function () {
