@@ -41,6 +41,7 @@ Route::delete('ticket/destroy/{id}', [TicketController::class, 'destroy']);
 Route::put('ticket/update/{id}', [TicketController::class, 'update']);
 
 //REVIEW
+Route::get('/rating/{id}', [ReviewController::class, 'getRating']);
 Route::get('review', function () {
     return \App\Models\Review::with('destinasi')->get();
 });

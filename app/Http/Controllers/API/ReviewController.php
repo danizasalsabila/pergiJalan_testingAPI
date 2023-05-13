@@ -3,12 +3,50 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\Destinasi;
 use App\Models\Review;
 use DateTime;
 use Illuminate\Http\Request;
 
 class ReviewController extends Controller
 {
+    public function getRating($id)
+    {
+        $idDestinasi = Destinasi::find($id);
+        if (!$idDestinasi) {
+            return response()->json([
+                'message' => 'Destinasi tidak ditemukan'
+            ], 404);
+        }
+
+        $ratingCount = $idDestinasi->ratings->count();
+        if ($ratingCount > 0) {
+            $totalRating = $idDestinasi->ratings->sum('rating');
+            $avgRating = $totalRating / $ratingCount;
+        } else {
+            $avgRating = 0;
+        }
+     
+        if ($ratingCount != null) {
+            return response([
+                'status' => true,
+                'message' => 'Penilaian berhasil ditampilkan',
+                'id_destinasi' => $idDestinasi->id,
+                'rating' => $avgRating
+            ], 200);
+        } else if ($ratingCount == null) {
+            return response([
+                'status' => false,
+                'message' => 'Belum terdapat penilaian',
+                // 'id_destinasi' => $idDestinasi->id,
+            ], 202);
+        }else {
+            return response([
+                'status' => false,
+                'message' => 'Failed'
+            ], 400);
+        }
+    }
     /**
      * Display a listing of the resource.
      */
@@ -18,14 +56,14 @@ class ReviewController extends Controller
         // $review = Review::with('review')->get();
 
 
-        if($review != null){
+        if ($review != null) {
             return response([
                 'status' => 'success',
                 'message' => 'Raview Berhasil ditampilkan',
                 'data' => $review
             ], 200);
         } else {
-            return response ([
+            return response([
                 'status' => 'failed',
                 'message' => 'Raview gagal ditampilkan'
             ], 404);
@@ -48,14 +86,14 @@ class ReviewController extends Controller
         $dt = new DateTime();
         $tahun = $dt->format('y');
         $bulan = $dt->format('m');
-        
+
         $request->validate([
             'id_destinasi' => 'required|exists:destinasi,id',
-            'review' =>'nullable|string',
-            'rating' =>'required|min:1|max:5',
+            'review' => 'nullable|string',
+            'rating' => 'required|min:1|max:5',
         ]);
 
-    
+
         $review = new Review;
         $review->id_destinasi = $request->input('id_destinasi');
         $review->review = $request->input('review');
@@ -63,14 +101,14 @@ class ReviewController extends Controller
         $review->created_at = $dt;
         $review->save();
 
-        if($review != null){
+        if ($review != null) {
             return response([
                 'status' => 'success',
                 'message' => 'Review Berhasil Ditambahkan',
                 'data' => $review
             ], 200);
         } else {
-            return response ([
+            return response([
                 'status' => 'failed',
                 'message' => 'Review gagal Ditambahkan'
             ], 404);
@@ -85,13 +123,13 @@ class ReviewController extends Controller
     {
         //
         $review = Review::where('id_destinasi', $id)->orderBy('id', 'desc')->get();
-        if($review != null) {
-            return response ([
+        if ($review != null) {
+            return response([
                 'status' => 'Review berhasil ditampilkan',
                 'data' => $review
             ], 200);
         } else {
-            return response ([
+            return response([
                 'status' => 'failed',
                 'message' => 'Review tidak ditemukan'
             ], 404);

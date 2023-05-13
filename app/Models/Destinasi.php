@@ -11,6 +11,10 @@ class Destinasi extends Model
 
     protected $table = 'destinasi';
 
+    public function ratings()
+    {
+        return $this->hasMany(Review::class, 'id_destinasi');
+    }
 
 }
 

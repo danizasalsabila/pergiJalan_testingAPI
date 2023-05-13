@@ -21,7 +21,6 @@ class AuthControllerUser extends Controller
             'confirm_password' => 'required|same:password',
             'phone_number' => 'required|string',
             'id_card_number' => 'required|string',
-
         ]);
 
         if ($validator->fails()) {
