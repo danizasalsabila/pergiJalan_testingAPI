@@ -23,16 +23,21 @@ class ReviewController extends Controller
         if ($ratingCount > 0) {
             $totalRating = $idDestinasi->ratings->sum('rating');
             $avgRating = $totalRating / $ratingCount;
+            // $avgRating = number_format($avgRating, 1, '.', '');
         } else {
             $avgRating = 0;
         }
-     
+
+        // Cek tipe data avgRating
+
+
+
         if ($ratingCount != null) {
             return response([
                 'status' => true,
                 'message' => 'Penilaian berhasil ditampilkan',
                 'id_destinasi' => $idDestinasi->id,
-                'rating' => $avgRating
+                'rating' => number_format($avgRating, 1)
             ], 200);
         } else if ($ratingCount == null) {
             return response([
@@ -40,7 +45,7 @@ class ReviewController extends Controller
                 'message' => 'Belum terdapat penilaian',
                 // 'id_destinasi' => $idDestinasi->id,
             ], 202);
-        }else {
+        } else {
             return response([
                 'status' => false,
                 'message' => 'Failed'
