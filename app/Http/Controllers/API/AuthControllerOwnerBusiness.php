@@ -2,24 +2,27 @@
 
 namespace App\Http\Controllers\API;
 
-use App\Models\User;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
+use Illuminate\Foundation\Auth\User;
+use Illuminate\Http\Request;
+use App\Models\OwnerBusiness;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
 
-class AuthControllerUser extends Controller
+
+class AuthControllerOwnerBusiness extends Controller
 {
-    // //this works!
+
     public function register(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'name' => 'required',
-            'email' => 'email|required|unique:user',
+            'nama_owner' => 'required',
+            'email' => 'email|required|unique:owner_business,email',
             'password' => 'required|min:6',
             'confirm_password' => 'required|same:password',
-            'phone_number' => 'required|string',
+            'address' => 'required|string',
+            'contact_number' => 'required|string',
             'id_card_number' => 'required|string',
         ]);
 
@@ -55,10 +58,9 @@ class AuthControllerUser extends Controller
 
         $input = $request->all();
         $input['password'] = bcrypt($input['password']);
-        $user = User::create($input);
+        $owner = OwnerBusiness::create($input);
 
-        // $success['token'] = $user->createToken('auth_token')->plainTextToken;
-        $success['name'] = $user->name;
+        $success['nama_owner'] = $owner->nama_owner;
 
         return response()->json([
             'status' => true,
@@ -70,17 +72,22 @@ class AuthControllerUser extends Controller
 
     public function login(Request $request)
     {
-        if (Auth::attempt(['email' => $request->email, 'password' => $request->password])) {
-            $auth = Auth::user();
-            $success['token'] = $auth->createToken('auth_token')->plainTextToken;
-            $success['name'] = $auth->name;
-            $success['email'] = $auth->email;
-            $success['id'] = $auth->id;
+        $request->validate([
+            'email' => 'required|email',
+            'password' => 'required',
+        ]);
+
+        $credentials = $request->only('email', 'password');
+
+        if (Auth::guard('owner')->attempt($credentials)) {
+            $owner = Auth::guard('owner')->user();
+            $token = $owner->createToken('owner-token')->plainTextToken;
 
             return response()->json([
                 'success' => true,
                 'message' => 'Login sukses',
-                'data' => $success
+                'data' => $owner,
+                'token' => $token
             ], 200);
         } else {
             return response()->json([
@@ -88,8 +95,8 @@ class AuthControllerUser extends Controller
                 'message' => 'Cek email dan password anda kembali',
             ], 422);
         }
-    }
 
+    }
 
     public function logout(Request $request)
     {
@@ -100,58 +107,22 @@ class AuthControllerUser extends Controller
             'message' => 'Logout successful'
         ]);
     }
+
+
     /**
      * Display a listing of the resource.
      */
     public function index()
     {
-        $user = DB::table('user')->orderBy('id', 'asc')->get();
-
-        if ($user != null) {
-            return response([
-                'success' => true,
-                'code' => 200,
-                'message' => 'Data user berhasil ditampilkan',
-                'data' => $user
-            ], 200);
-        } else {
-            return response([
-                'success' => false,
-                'code' => 404,
-                'message' => 'Data user tidak ditemukan'
-            ], 404);
-        }
+        //
     }
 
     /**
-     * Display the specified resource.
-     * @return \Illuminate\Http\Response
-     */
-    public function email(Request $request)
+     * Show the form for creating a new resource.
+    //  */
+    public function create()
     {
-        $userEmail = $request->q;
-
-        if (empty($userEmail)) {
-            return response([
-                'success' => false,
-                'message' => 'Email harus diberikan'
-            ], 400);
-        }
-
-
-        $user = User::where('email', 'LIKE', "%" . $userEmail . "%")->get();
-
-        if ($user->isEmpty()) {
-            return response([
-                'success' => false,
-                'message' => 'Tidak ada user yang ditemukan berdasarkan email yang diberikan'
-            ], 404);
-        }
-        return response([
-            'success' => true,
-            'message' => 'User berhasil ditemukan',
-            'data' => $user
-        ], 200);
+        //
     }
 
     /**
@@ -164,23 +135,18 @@ class AuthControllerUser extends Controller
 
     /**
      * Display the specified resource.
-     * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function show(string $id)
     {
-        $user = User::where('id', $id)->first();
-        if ($user != null) {
-            return response([
-                'status' => true,
-                'message' => 'Data diri user berhasil ditampilkan',
-                'data' => $user
-            ], 200);
-        } else {
-            return response([
-                'status' => false,
-                'message' => 'user tidak ditemukan'
-            ], 404);
-        }
+        //
+    }
+
+    /**
+     * Show the form for editing the specified resource.
+     */
+    public function edit(string $id)
+    {
+        //
     }
 
     /**

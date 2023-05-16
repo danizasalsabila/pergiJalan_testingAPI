@@ -2,24 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Contracts\Auth\Authenticatable;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Foundation\Auth\User as AuthenticatableUser;
 use Illuminate\Database\Eloquent\Model;
+
+use Illuminate\Contracts\Auth\Authenticatable;
+use Illuminate\Foundation\Auth\User as AuthenticatableUser;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 
 
-class User extends AuthenticatableUser implements Authenticatable
+class OwnerBusiness extends AuthenticatableUser implements Authenticatable
 {
-    use HasFactory, Notifiable, HasApiTokens;
-    protected $table = 'user';
+    use Notifiable, HasApiTokens;
+    protected $table = 'owner_business';
     protected $fillable = [
-        'name',
+        'nama_owner',
         'email',
-        'phone_number',
-        'id_card_number',
         'password',
+        'contact_number',
+        'id_card_number',
+        'address'
     ];
     protected $hidden = ['password'];
+
 }

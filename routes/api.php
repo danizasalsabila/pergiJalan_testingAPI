@@ -1,6 +1,8 @@
 <?php
 
+use App\Http\Controllers\API\AuthControllerOwnerBusiness;
 use App\Http\Controllers\API\ReviewController;
+use App\Models\OwnerBusiness;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\API\DestinasiController;
@@ -76,3 +78,10 @@ Route::get('user', [AuthControllerUser::class, 'index']);
 Route::get('/email/user', 'App\Http\Controllers\API\AuthControllerUser@email');
 Route::get('user/{id}', [AuthControllerUser::class, 'show']);
 
+
+//OWNER BUSINESS USER
+Route::post('owner/register', [AuthControllerOwnerBusiness::class, 'register']);
+Route::post('owner/login', [AuthControllerOwnerBusiness::class, 'login']);
+Route::middleware('auth:sanctum')->group(function () {
+    Route::post('owner/logout', [AuthControllerOwnerBusiness::class, 'logout']);
+});
