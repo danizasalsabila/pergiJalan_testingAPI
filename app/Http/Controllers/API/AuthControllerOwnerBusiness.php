@@ -82,12 +82,16 @@ class AuthControllerOwnerBusiness extends Controller
         if (Auth::guard('owner')->attempt($credentials)) {
             $owner = Auth::guard('owner')->user();
             $token = $owner->createToken('owner-token')->plainTextToken;
+            $success['id'] = $owner->id;
+            $success['nama_owner'] = $owner->nama_owner;
+            $success['email'] = $owner->email;
+            $success['token'] = $token;
 
             return response()->json([
                 'success' => true,
                 'message' => 'Login sukses',
-                'data' => $owner,
-                'token' => $token
+                'data' => $success,
+                // 'token' => $token
             ], 200);
         } else {
             return response()->json([
