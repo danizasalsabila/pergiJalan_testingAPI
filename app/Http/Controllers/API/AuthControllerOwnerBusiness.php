@@ -114,7 +114,20 @@ class AuthControllerOwnerBusiness extends Controller
      */
     public function index()
     {
-        //
+        $owner = DB::table('owner_business')->orderBy('id', 'asc')->get();
+
+        if ($owner != null) {
+            return response([
+                'success' => true,
+                'message' => 'Data owner berhasil ditampilkan',
+                'data' => $owner
+            ], 200);
+        } else {
+            return response([
+                'success' => false,
+                'message' => 'Data owner tidak ditemukan'
+            ], 404);
+        }
     }
 
     /**
