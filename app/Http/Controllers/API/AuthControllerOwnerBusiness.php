@@ -135,10 +135,23 @@ class AuthControllerOwnerBusiness extends Controller
 
     /**
      * Display the specified resource.
+     * @return \Illuminate\Http\Response
      */
-    public function show(string $id)
+    public function show($id)
     {
-        //
+        $owner = OwnerBusiness::where('id', $id)->first();
+        if ($owner != null) {
+            return response([
+                'status' => true,
+                'message' => 'Data diri owner tempat wisata berhasil ditampilkan',
+                'data' => $owner
+            ], 200);
+        } else {
+            return response([
+                'status' => false,
+                'message' => 'owner tempat wisata tidak ditemukan'
+            ], 404);
+        }
     }
 
     /**

@@ -85,3 +85,5 @@ Route::post('owner/login', [AuthControllerOwnerBusiness::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('owner/logout', [AuthControllerOwnerBusiness::class, 'logout']);
 });
+Route::get('owner/{id}', [AuthControllerOwnerBusiness::class, 'show']);
+
