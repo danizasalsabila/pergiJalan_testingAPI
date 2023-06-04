@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Models\User;
+use DateTime;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -185,10 +186,47 @@ class AuthControllerUser extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
         //
+        $getUser =  User::where('id', $id)->first();
+
+        if(!$getUser) {
+            return response([
+                'status' => 'failed',
+                'message' => 'User tidak ditemukan'
+            ], 404);
+        }
+        $dt = new DateTime();
+        $tahun = $dt->format('y');
+        $bulan = $dt->format('m');
+        $requestUser = [
+            'name' => $request->name,
+            'phone_number' => $request->phone_number,
+            'id_card_number' => $request->id_card_number,
+            'updated_at' => $dt
+        ];
+
+        $id = $getUser->id;
+        $updateUser = DB::table('user')->where('id', $id)->update($requestUser);
+
+        if ($updateUser != null) {
+            return response([
+                'status' => 'success',
+                'message' => 'User Berhasil Diedit',
+                'data' => $requestUser
+            ], 200);
+        } else {
+            return response([
+                'status' => 'failed',
+                'message' => 'User gagal Diedit'
+            ], 404);
+        }
+
     }
 
     /**

@@ -16,5 +16,10 @@ class Destinasi extends Model
         return $this->hasMany(Review::class, 'id_destinasi');
     }
 
+    public function owner()
+    {
+        return $this->belongsTo(OwnerBusiness::class, 'id_owner');
+    }
+
 }
 

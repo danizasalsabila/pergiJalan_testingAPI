@@ -52,6 +52,30 @@ class ReviewController extends Controller
             ], 400);
         }
     }
+
+    public function getRatingByIdOwner($id)
+    {
+        $reviews = Review::whereHas('destinasi', function ($query) use ($id) {
+            $query->where('id_owner', $id);
+        })->get();
+        
+        if ($reviews->isEmpty()) {
+            return response()->json([
+                'message' => 'Belum terdapat penilaian',
+            ], 202);
+        }
+    
+        $ratingCount = $reviews->count();
+        $totalRating = $reviews->sum('rating');
+        $avgRating = $totalRating / $ratingCount;
+    
+        return response()->json([
+            'status' => true,
+            'message' => 'Penilaian berhasil ditampilkan',
+            'id_owner' => $id,
+            'rating' => doubleval($avgRating)
+        ], 200);
+    }
     /**
      * Display a listing of the resource.
      */
@@ -94,6 +118,7 @@ class ReviewController extends Controller
 
         $request->validate([
             'id_destinasi' => 'required|exists:destinasi,id',
+            'id_user' => 'required|exists:user,id',
             'review' => 'nullable|string',
             'rating' => 'required|min:1|max:5',
         ]);
@@ -101,8 +126,10 @@ class ReviewController extends Controller
 
         $review = new Review;
         $review->id_destinasi = $request->input('id_destinasi');
+        $review->id_user = $request->input('id_user');
         $review->review = $request->input('review');
         $review->rating = $request->input('rating');
+
         $review->created_at = $dt;
         $review->save();
 
@@ -127,7 +154,8 @@ class ReviewController extends Controller
     public function show(string $id)
     {
         //
-        $review = Review::where('id_destinasi', $id)->orderBy('id', 'desc')->get();
+        $review = Review::with('user')->where('id_destinasi', $id)->orderBy('id', 'desc')->get();
+
         if ($review != null) {
             return response([
                 'status' => 'Review berhasil ditampilkan',

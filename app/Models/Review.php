@@ -12,8 +12,13 @@ class Review extends Model
 
     public function destinasi()
     {
-        return $this->belongsTo(Destinasi::class, 'id_destinasi');
+        return $this->belongsTo(Destinasi::class, 'id_destinasi')->select('id','id_owner');
     }
 
-    protected $fillable = ['id_destinasi', 'review', 'rating', 'created_at'];
+    public function user()
+    {
+        return $this->belongsTo(User::class, 'id_user')->select('id', 'name', 'email',);
+    }
+
+    protected $fillable = ['id_destinasi', 'id_user', 'review', 'rating', 'created_at'];
 }

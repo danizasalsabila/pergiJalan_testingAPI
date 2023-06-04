@@ -26,8 +26,10 @@ Route::post('destinasi/store', [DestinasiController::class, 'store']);
 Route::get('destinasi/{id}', [DestinasiController::class, 'show']);
 Route::put('destinasi/update/{id}', [DestinasiController::class, 'update']);
 Route::delete('destinasi/destroy/{id}', [DestinasiController::class, 'destroy']);
+Route::get('destinasi/byowner/{id_owner}', [DestinasiController::class, 'showByIdOwner']);
 //search Destinasi
 // Route::get('destinasi/search/{name_destinasi}', [DestinasiController::class, 'search']);
+
 Route::get('/search/destinasi', 'App\Http\Controllers\API\DestinasiController@search');
 Route::get('/city/destinasi', 'App\Http\Controllers\API\DestinasiController@city');
 Route::get('/category/destinasi', 'App\Http\Controllers\API\DestinasiController@category');
@@ -44,11 +46,15 @@ Route::put('ticket/update/{id}', [TicketController::class, 'update']);
 
 //REVIEW
 Route::get('/rating/{id}', [ReviewController::class, 'getRating']);
+Route::get('/rating/byowner/{id_owner}', [ReviewController::class, 'getRatingByIdOwner']);
 Route::get('review', function () {
     return \App\Models\Review::with('destinasi')->get();
 });
 Route::post('review', [ReviewController::class, 'store']);
 Route::get('review/{id}', [ReviewController::class, 'show']);
+// Route::get('review/{id}', function () {
+//     return \App\Models\Review::with('user')->get();
+// });
 
 
 //USER
@@ -74,6 +80,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::post('register', [AuthControllerUser::class, 'register']);
 Route::post('login', [AuthControllerUser::class, 'login']);
+Route::put('user/{id}', [AuthControllerUser::class, 'update']);
 Route::get('user', [AuthControllerUser::class, 'index']);
 Route::get('/email/user', 'App\Http\Controllers\API\AuthControllerUser@email');
 Route::get('user/{id}', [AuthControllerUser::class, 'show']);
@@ -86,6 +93,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('owner/logout', [AuthControllerOwnerBusiness::class, 'logout']);
 });
 Route::get('owner/{id}', [AuthControllerOwnerBusiness::class, 'show']);
+Route::put('owner/{id}', [AuthControllerOwnerBusiness::class, 'update']);
 Route::get('owner', [AuthControllerOwnerBusiness::class, 'index']);
 
 

@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use DateTime;
 use Illuminate\Foundation\Auth\User;
 use Illuminate\Http\Request;
 use App\Models\OwnerBusiness;
@@ -181,10 +182,47 @@ class AuthControllerOwnerBusiness extends Controller
 
     /**
      * Update the specified resource in storage.
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, $id)
     {
-        //
+        $getOwner =  OwnerBusiness::where('id', $id)->first();
+
+        if(!$getOwner) {
+            return response([
+                'status' => 'failed',
+                'message' => 'User tidak ditemukan'
+            ], 404);
+        }
+        $dt = new DateTime();
+        $tahun = $dt->format('y');
+        $bulan = $dt->format('m');
+        $requestOwner = [
+            'nama_owner' => $request->nama_owner,
+            'contact_number' => $request->contact_number,
+            'id_card_number' => $request->id_card_number,
+            'address' => $request->address,
+            'updated_at' => $dt
+        ];
+
+        $id = $getOwner->id;
+        $updateOwner = DB::table('owner_business')->where('id', $id)->update($requestOwner);
+
+        if ($updateOwner != null) {
+            return response([
+                'status' => 'success',
+                'message' => 'Owner Profile Berhasil Diedit',
+                'data' => $requestOwner
+            ], 200);
+        } else {
+            return response([
+                'status' => 'failed',
+                'message' => 'Owner Profile gagal Diedit'
+            ], 404);
+        }
+
     }
 
     /**
