@@ -23,7 +23,6 @@ class OwnerBusiness extends AuthenticatableUser implements Authenticatable
         'address'
     ];
 
-    
     protected $hidden = ['password'];
 
 }

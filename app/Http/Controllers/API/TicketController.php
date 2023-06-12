@@ -3,6 +3,8 @@
 namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
+use App\Models\ETicket;
+use App\Models\OwnerBusiness;
 use App\Models\Ticket;
 use DateTime;
 use Illuminate\Http\Request;
@@ -16,7 +18,6 @@ class TicketController extends Controller
      */
     public function index()
     {
-        // $ticket = Ticket::with('ticket')->get();
         $ticket = Ticket::with('destinasi')->get();
 
         // return response()->json([
@@ -36,6 +37,55 @@ class TicketController extends Controller
             ], 404);
         }
     }
+
+    public function getTicketSoldByDestination(Request $request)
+    {
+        // Validasi inputan jika diperlukan
+        $request->validate([
+            'id_destinasi' => 'required|exists:destinasi,id'
+        ]);
+
+        $destinationId = $request->input('id_destinasi');
+
+        // Mengecek apakah terdapat E-Ticket dengan id_destinasi yang diberikan
+        $eticketExists = ETicket::where('id_destinasi', $destinationId)->exists();
+
+        if (!$eticketExists) {
+            return response()->json(['message' => 'Tidak terdapat pembelian tiket'], 404);
+        }
+
+        // Menghitung jumlah tiket terjual berdasarkan ID destinasi
+        $ticketSold = ETicket::whereHas('ticket', function ($query) use ($destinationId) {
+            $query->where('id_destinasi', $destinationId);
+        })->count();
+
+        return response()->json(['ticket_sold' => $ticketSold], 200);
+    }
+
+    public function getTicketSoldByIdOwner(Request $request)
+    {
+        // Validasi inputan jika diperlukan
+        $request->validate([
+            'id_owner' => 'required|exists:owner_business,id'
+        ]);
+
+        $ownerId = $request->input('id_owner');
+
+        // Mengecek apakah terdapat E-Ticket dengan id_destinasi yang diberikan
+        $eticketExists = ETicket::where('id_owner', $ownerId)->exists();
+
+        if (!$eticketExists) {
+            return response()->json(['message' => 'Tidak terdapat pembelian tiket'], 404);
+        }
+
+        // Menghitung jumlah tiket terjual berdasarkan ID destinasi
+        $ticketSold = ETicket::whereHas('ticket', function ($query) use ($ownerId) {
+            $query->where('id_owner', $ownerId);
+        })->count();
+
+        return response()->json(['ticket_sold' => $ticketSold], 200);
+    }
+
 
     /**
      * Show the form for creating a new resource.
@@ -60,18 +110,27 @@ class TicketController extends Controller
             'id_destinasi' => 'required|exists:destinasi,id',
             'price' => 'nullable|integer|min:1',
             'stock' => 'nullable|integer|min:0',
-            'ticket_sold' => 'nullable|integer|min:0',
-            'visit_date' => 'nullable|string',
+            // 'ticket_sold' => 'nullable|integer|min:0',
+            // 'visit_date' => 'nullable|string',
         ]);
+
+        // $id_destinasi = $request->input('id_destinasi');
 
         $ticket = new Ticket;
         $ticket->id_destinasi = $request->input('id_destinasi');
         $ticket->price = $request->input('price');
         $ticket->stock = $request->input('stock');
-        $ticket->ticket_sold = $request->input('ticket_sold');
-        $ticket->visit_date = $request->input('visit_date');
+        // $ticket->ticket_sold = $request->input('ticket_sold');
+
         $ticket->created_at = $dt;
         $ticket->save();
+
+        // $ticketSold = ETicket::whereHas('ticket', function ($query) use ($id_destinasi) {
+        //     $query->where('id_destinasi', $id_destinasi);
+        // })->count();
+
+        // $ticket->ticket_sold = $ticketSold;
+        // $ticket->save();
 
         if ($ticket != null) {
             return response([
@@ -95,7 +154,7 @@ class TicketController extends Controller
     {
         //
         // $ticket = Ticket::where('id_destinasi', $id)->get();
-        $ticket = Ticket::where('id_destinasi', $id)->first();
+        $ticket = Ticket::where('id_destinasi', $id)->get();
         if ($ticket != null) {
             return response([
                 'status' => 'Ticket berhasil ditampilkan',
@@ -119,16 +178,16 @@ class TicketController extends Controller
     /**
      * Update the specified resource in storage.
      * @param  \Illuminate\Http\Request  $request
-     * @param  int  $idDestinasi
+     * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $idDestinasi)
+    public function update(Request $request, $id)
     {
-        $getTicket = Ticket::where('id_destinasi', $idDestinasi)->first();
+        $getTicket = Ticket::where('id', $id)->first();
         if (!$getTicket) {
             return response([
                 'status' => 'failed',
-                'message' => 'ID destinasi tidak ditemukan'
+                'message' => 'ID Ticket tidak ditemukan'
             ], 404);
         }
 
@@ -139,11 +198,11 @@ class TicketController extends Controller
         $requestTicket = [
             'price' => $request->price,
             'stock' => $request->stock,
-            'updated_at'=> $dt
+            'updated_at' => $dt
         ];
 
         // $idDestinasi = $getTicket->idDestinasi;
-        $updateTicket = DB::table('ticket')->where('id_destinasi', $idDestinasi)->update($requestTicket);
+        $updateTicket = DB::table('ticket')->where('id', $id)->update($requestTicket);
 
 
         if ($updateTicket != null) {
@@ -166,8 +225,8 @@ class TicketController extends Controller
      */
     public function destroy($id)
     {
-        $getTicket = Ticket::where('id_destinasi', $id)->first();
-        $ticket = Ticket::where('id_destinasi', $id)->delete();
+        // $getTicket = Ticket::where('id', $id)->first();
+        $ticket = Ticket::where('id', $id)->delete();
 
         if ($ticket) {
             return response([

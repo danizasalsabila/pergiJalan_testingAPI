@@ -4,9 +4,11 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use App\Models\ETicket;
+use App\Models\Ticket;
 use DateTime;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Str;
 
 class ETicketController extends Controller
 {
@@ -16,7 +18,7 @@ class ETicketController extends Controller
     public function index()
     {
         $eticket = ETicket::with('ticket')->get();
-        if ($eticket != null) {
+        if ($eticket->count() > 0) {
             return response([
                 'status' => 'success',
                 'message' => 'E-Ticket Berhasil ditampilkan',
@@ -111,6 +113,7 @@ class ETicketController extends Controller
      * Store a newly created resource in storage.
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
+     * 
      */
     public function store(Request $request)
     {
@@ -118,10 +121,12 @@ class ETicketController extends Controller
         $tahun = $dt->format('y');
         $bulan = $dt->format('m');
 
+
         $request->validate([
             'id_user' => 'required|exists:user,id',
             'id_owner' => 'required|exists:owner_business,id',
             'id_ticket' => 'required|exists:ticket,id',
+            'id_destinasi' => 'required|exists:destinasi,id',
             'name_visitor' => 'required|string',
             'contact_visitor' => 'required|string',
             'date_visit' => 'required|string',
@@ -131,11 +136,32 @@ class ETicketController extends Controller
         $eticket->id_user = $request->input('id_user');
         $eticket->id_owner = $request->input('id_owner');
         $eticket->id_ticket = $request->input('id_ticket');
+        $eticket->id_destinasi = $request->input('id_destinasi');
         $eticket->name_visitor = $request->input('name_visitor');
         $eticket->contact_visitor = $request->input('contact_visitor');
         $eticket->date_visit = $request->input('date_visit');
         $eticket->date_book = $dt;
+        // Generate random ID to make payment virtual account
+        $length = 12; // Jumlah karakter yang diinginkan
+        $randomId = str_pad(rand(0, pow(10, $length) - 1), $length, '0', STR_PAD_LEFT);
+        $eticket->virtual_account = $randomId;
+
+        // Mendapatkan harga tiket dari tabel 'ticket' berdasarkan 'id_ticket'
+        $ticket = Ticket::findOrFail($request->input('id_ticket'));
+        $eticket->price = $ticket->price;
+
         $eticket->save();
+
+        //to reduce the amount of stock on ticket table with id_ticket request
+        $ticket = Ticket::findOrFail($request->input('id_ticket'));
+        $ticket->decrement('stock');
+
+        //to increase the amount of ticket_sold on ticket table with id_ticket request
+        $ticket = Ticket::findOrFail($request->input('id_ticket'));
+        $ticketSold = $ticket->eTickets()->count();
+        $ticket->ticket_sold = $ticketSold;
+        
+        $ticket->save();
 
         if ($eticket != null) {
             return response([
@@ -193,7 +219,7 @@ class ETicketController extends Controller
         if ($eticket->count() > 0) {
             return response([
                 'status' => 'success',
-                'message' => 'E-Ticket berdasarkan bulan' . $month . 'Berhasil Ditampilkan',
+                'message' => 'E-Ticket berdasarkan bulan ke ' . $month . ' di tahun ' . $year . ' Berhasil Ditampilkan',
                 'data' => $eticket
             ], 200);
         } else {
@@ -236,10 +262,24 @@ class ETicketController extends Controller
 
     /**
      * Display the specified resource.
+     * @return \Illuminate\Http\Response
      */
-    public function show(string $id)
+    public function show($id)
     {
         //
+        // $ticket = Ticket::where('id_destinasi', $id)->get();
+        $eticket = ETicket::where('id', $id)->get();
+        if ($eticket ->count() > 0) {
+            return response([
+                'status' => 'ETicket berhasil ditampilkan',
+                'data' => $eticket
+            ], 200);
+        } else {
+            return response([
+                'status' => 'failed',
+                'message' => 'ETicket tidak ditemukan'
+            ], 404);
+        }
     }
 
     /**
