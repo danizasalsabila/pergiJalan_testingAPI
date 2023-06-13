@@ -71,7 +71,7 @@ class ETicketController extends Controller
     public function showByIdUser($id)
     {
         //
-        $eticket = ETicket::where('id_user', $id)->orderBy('id', 'desc')->get();
+        $eticket = ETicket::with('destinasi')->where('id_user', $id)->orderBy('id', 'desc')->get();
         ;
         if ($eticket->count() > 0) {
             return response([
