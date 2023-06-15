@@ -123,15 +123,16 @@ class DestinasiController extends Controller
     }
 
 
-        /**
+    /**
      * Display the specified resource.
      * @return \Illuminate\Http\Response
      */
     public function showByIdOwner($id)
     {
         //
-        $destinasi = Destinasi::where('id_owner', $id)->orderBy('id', 'desc')->get();;
-        if ($destinasi->count() >0) {
+        $destinasi = Destinasi::where('id_owner', $id)->orderBy('id', 'desc')->get();
+        ;
+        if ($destinasi->count() > 0) {
             return response([
                 'status' => 'Destinasi ID OWNER: $id berhasil ditampilkan',
                 'data' => $destinasi
@@ -239,12 +240,18 @@ class DestinasiController extends Controller
     public function search(Request $request)
     {
         $searchQuery = $request->q;
+        if (empty($searchQuery)) {
+            return response([
+                'status' => 'failed',
+                'message' => 'Parameter pencarian tidak boleh kosong'
+            ], 400);
+        }
         $destinasi = Destinasi::where('name_destinasi', 'LIKE', "%" . $searchQuery . "%")
             ->orWhere('city', 'LIKE', "%" . $searchQuery . "%")
             ->orWhere('category', 'LIKE', "%" . $searchQuery . "%")
             ->get();
 
-        if ($destinasi->count() >0) {
+        if ($destinasi->count() > 0) {
             return response([
                 'status' => 'success',
                 'message' => 'Destinasi yang dicari Berhasil Ditampilkan',
